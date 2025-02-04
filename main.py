@@ -37,4 +37,18 @@ for packet in a:
             print(f"Time to Live: {ip_layer.ttl}")
             print(f"Protocol: {ip_layer.proto}")
 
+    encapsulated_layer = packet.getlayer("TCP")
+    if encapsulated_layer is not None:
+        print("TCP LAYER")
+        print(f"Flags: {encapsulated_layer.flags}")
+        print(f"Window: {encapsulated_layer.window}")
+        print(f"Acknowledgement Number: {encapsulated_layer.ack}")
+    else:
+        encapsulated_layer = packet.getlayer("UDP")
+
+        if encapsulated_layer is not None:
+            print("UDP LAYER")
+            print(f"SRC Port: {encapsulated_layer.sport}")
+            print(f"Checksum: {encapsulated_layer.chksum}")
+
     index += 1
