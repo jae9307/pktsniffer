@@ -186,6 +186,8 @@ def main():
     # meets the criteria established by the command line parameters.
     index = 1
     for packet in packets:
+        if args.c is not None and int(args.c) < index:
+            break
         if filtering(args, packet):
             print(f"---------    Packet {index}    ---------")
 
