@@ -120,16 +120,34 @@ def filtering(args, packet):
     # TCP header and the tcp parameter was selected
     tcp_layer = packet.getlayer("TCP")
     if tcp_layer is not None:
-        if (args.port is not None and tcp_layer.sport != args.port
-                and tcp_layer.dport != args.port):
+        if (args.port is not None and tcp_layer.sport != int(args.port)
+                and tcp_layer.dport != int(args.port)):
             return False
     elif args.tcp is True:
         return False
 
-    # Discards the packet if it doesn't have a UDP layer and the udp
-    # parameter was selected.
+    # Discards the packet if its source and destination ports don't match the
+    # port specified by the port parameter, or if the packet doesn't have a
+    # UDP layer and the udp parameter was selected.
     udp_layer = packet.getlayer("UDP")
     if udp_layer is None and args.udp is True:
+        return False
+    elif (udp_layer is not None and args.port is not None
+            and udp_layer.sport != int(args.port)
+            and udp_layer.dport != int(args.port)):
+        return False
+
+    # Discards the packet if its source and destination ports don't match the
+    # port specified by the port parameter
+    sctp_layer = packet.getlayer("SCTP")
+    if (sctp_layer is not None and sctp_layer.sport != int(args.port)
+            and sctp_layer.dport != int(args.port)):
+        return False
+
+    # Discards the packet if it doesn't have a tcp, udp or sctp layer and the
+    # port parameter was selected
+    if (tcp_layer is None and udp_layer is None and sctp_layer is None
+            and args.port is not None):
         return False
 
     # Discards the packet if it doesn't have an ICMP layer and the icmp
