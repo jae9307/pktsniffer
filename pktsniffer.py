@@ -7,13 +7,14 @@ def read_udp_layer(packet):
     read_udp_layer reads and prints fields from the UDP layer.
 
     read_udp_layer parses the UDP header of a packet if it is present, and
-    prints its checksum and source port fields.
+    prints its checksum and port fields.
     :param packet: the packet being parsed
     """
     encapsulated_layer = packet.getlayer("UDP")
     if encapsulated_layer is not None:
         print("UDP LAYER")
         print(f"SRC Port: {encapsulated_layer.sport}")
+        print(f"DST Port: {encapsulated_layer.dport}")
         print(f"Checksum: {encapsulated_layer.chksum}")
 
 
@@ -22,7 +23,7 @@ def read_tcp_layer(packet):
     read_tcp_layer reads and prints fields from the TCP layer.
 
     read_tcp_layer parses the TCP layer of a packet if it is present, and
-    prints its Flags, Window and Acknowledgement Number fields. If a TCP
+    prints its Flags, Window, Acknowledgement Number and port fields. If a TCP
     layer isn't present in the packet, read_udp_layer is called.
     :param packet: the packet being parsed
     """
@@ -32,6 +33,8 @@ def read_tcp_layer(packet):
         print(f"Flags: {encapsulated_layer.flags}")
         print(f"Window: {encapsulated_layer.window}")
         print(f"Acknowledgement Number: {encapsulated_layer.ack}")
+        print(f"SRC Port: {encapsulated_layer.sport}")
+        print(f"DST Port: {encapsulated_layer.dport}")
     else:
         read_udp_layer(packet)
 
