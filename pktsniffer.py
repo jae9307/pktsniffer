@@ -1,3 +1,4 @@
+"""Read headers from packets in a capture file"""
 from scapy.all import *
 
 
@@ -102,12 +103,16 @@ def filtering(args, packet):
 
     # Discards the packet if its source and destination IP addresses don't
     # match the IP address specified by host parameter, or if the packet
-    # doesn't have an IP header and the ip parameter was selected.
+    # doesn't have an IP header and either the ip parameter, the host
+    # parameter, or the port parameter was selected.
     if ip_layer is not None:
         if (args.host is not None and ip_layer.src != args.host
                 and ip_layer.dst != args.host):
             return False
-    elif args.ip is True:
+        if (args.net is not None and ip_layer.src[:11] != args.net[:11]
+                and ip_layer.dst[:11] != args.net[:11]):
+            return False
+    elif args.ip is True or args.host is not None or args.net is not None:
             return False
 
     # Discards the packet if its source and destination ports don't match the
@@ -136,32 +141,38 @@ def filtering(args, packet):
     return True
 
 
-# Define command line parameters.
-parser = argparse.ArgumentParser(prog='pktsniffer', description='Reads packet headers')
-parser.add_argument('filename')
-parser.add_argument('-host', action='store')
-parser.add_argument('-port', action='store')
-parser.add_argument('-ip', action='store_true')
-parser.add_argument('-tcp', action='store_true')
-parser.add_argument('-udp', action='store_true')
-parser.add_argument('-icmp', action='store_true')
-parser.add_argument('-net', action='store')
-parser.add_argument('-c', action='store')
+def main():
+    """Parse command line arguments, filter and read packets in the file"""
 
-args = parser.parse_args()
+    # Define command line parameters.
+    parser = argparse.ArgumentParser(prog='pktsniffer', description='Reads packet headers')
+    parser.add_argument('filename')
+    parser.add_argument('-host', action='store')
+    parser.add_argument('-port', action='store')
+    parser.add_argument('-ip', action='store_true')
+    parser.add_argument('-tcp', action='store_true')
+    parser.add_argument('-udp', action='store_true')
+    parser.add_argument('-icmp', action='store_true')
+    parser.add_argument('-net', action='store')
+    parser.add_argument('-c', action='store')
 
-# Store list of packets from the indicated file.
-packets = rdpcap(args.filename)
+    args = parser.parse_args()
 
-# For each packet in the file, print fields from its headers if the packet
-# meets the criteria established by the command line parameters.
-index = 1
-for packet in packets:
-    if filtering(args, packet):
-        print(f"---------    Packet {index}    ---------")
+    # Store list of packets from the indicated file.
+    packets = rdpcap(args.filename)
 
-        read_ethernet_layer(packet)
-        read_ip_layer(packet)
-        read_tcp_layer(packet)
+    # For each packet in the file, print fields from its headers if the packet
+    # meets the criteria established by the command line parameters.
+    index = 1
+    for packet in packets:
+        if filtering(args, packet):
+            print(f"---------    Packet {index}    ---------")
 
-        index += 1
+            read_ethernet_layer(packet)
+            read_ip_layer(packet)
+            read_tcp_layer(packet)
+
+            index += 1
+
+if __name__ == '__main__':
+    main()
