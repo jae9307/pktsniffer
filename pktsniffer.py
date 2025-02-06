@@ -185,17 +185,20 @@ def main():
     # For each packet in the file, print fields from its headers if the packet
     # meets the criteria established by the command line parameters.
     index = 1
+    packet_number = 1  # as displayed in wireshark
     for packet in packets:
         if args.c is not None and int(args.c) < index:
             break
         if filtering(args, packet):
-            print(f"---------    Packet {index}    ---------")
+            print(f"---------    Packet {packet_number}    ---------")
 
             read_ethernet_layer(packet)
             read_ip_layer(packet)
             read_tcp_layer(packet)
 
             index += 1
+
+        packet_number += 1
 
 if __name__ == '__main__':
     main()
