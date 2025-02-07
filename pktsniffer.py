@@ -112,8 +112,14 @@ def filtering(args, packet):
         if (args.host is not None and ip_layer.src != args.host
                 and ip_layer.dst != args.host):
             return False
-        if (args.net is not None and ip_layer.src[:11] != args.net[:11]
-                and ip_layer.dst[:11] != args.net[:11]):
+        if args.net is not None and int(ip_layer.version) == 4:
+            src_address_octets = ip_layer.src.split(".")
+            dst_address_octets = ip_layer.dst.split(".")
+            net_address_octets = args.net.split(".")
+            if (src_address_octets[:3] != net_address_octets[:3]
+                    and dst_address_octets[:3] != net_address_octets[:3]):
+                return False
+        elif args.net is not None and int(ip_layer.version) == 6:
             return False
     elif args.ip is True or args.host is not None or args.net is not None:
             return False
