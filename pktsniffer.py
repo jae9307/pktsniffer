@@ -106,8 +106,9 @@ def filtering(args, packet):
 
     # Discards the packet if its source and destination IP addresses don't
     # match the IP address specified by host parameter, or if the packet
-    # doesn't have an IP header and either the ip parameter, the host
-    # parameter, or the port parameter was selected.
+    # doesn't have an IP header and either the ip parameter or the host
+    # parameter was selected. The packet is also discarded if the net
+    # parameter was selected and the packet doesn't have an IPv4 header.
     if ip_layer is not None:
         if (args.host is not None and ip_layer.src != args.host
                 and ip_layer.dst != args.host):
